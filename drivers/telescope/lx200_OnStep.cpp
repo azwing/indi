@@ -469,7 +469,6 @@ bool LX200_OnStep::updateProperties()
             OSTimeoutMicroSeconds = 100000;
             OSTimeoutSeconds = 0;
         }
-
         // Firstinitialize some variables
         // keep sorted by TABs is easier
         // Main Control
@@ -2237,6 +2236,8 @@ bool LX200_OnStep::ReadScopeStatus()
             if (strstr(OSStat, "p"))
             {
                 IUSaveText(&OnstepStat[3], "UnParked");
+                SetParked(false);
+                TrackState = SCOPE_IDLE; // after OnStepX
             }
             // ============= End Parkstatus
 
@@ -5390,12 +5391,12 @@ void LX200_OnStep::SyncParkStatus(bool isparked)
     if (TrackState == SCOPE_PARKED)
     {
         ParkS[0].s = ISS_ON;
-        LOG_INFO("Mount is parked.");
+        //LOG_INFO("Mount is parked.");
     }
     else
     {
         ParkS[1].s = ISS_ON;
-        LOG_INFO("Mount is unparked.");
+        //LOG_INFO("Mount is unparked.");
     }
 
     IDSetSwitch(&ParkSP, nullptr);
