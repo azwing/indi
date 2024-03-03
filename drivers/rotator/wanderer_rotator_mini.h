@@ -1,7 +1,7 @@
 /*******************************************************************************
-  Copyright(c) 2018 Jasem Mutlaq. All rights reserved.
+  Copyright(c) 2024 Frank Wang. All rights reserved.
 
-  INDI Weather Simulator
+  WandererRotator Mini V1/V2
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of the GNU General Public License as published by the Free
@@ -24,34 +24,62 @@
 
 #pragma once
 
-#include "indiweather.h"
-
-class WeatherSimulator : public INDI::Weather
+#include "defaultdevice.h"
+#include "indirotator.h"
+#include "indirotatorinterface.h"
+#include "indipropertyswitch.h"
+class WandererRotatorMini : public INDI::Rotator
 {
 public:
-    WeatherSimulator();
-
-    //  Generic indi device entries
-    bool Connect() override;
-    bool Disconnect() override;
-    const char *getDefaultName() override;
+    WandererRotatorMini();
 
     virtual bool initProperties() override;
     virtual bool updateProperties() override;
+    virtual bool ISNewSwitch(const char *dev, const char *name, ISState *states, char *names[], int n) override;
     virtual bool ISNewNumber(const char *dev, const char *name, double values[], char *names[], int n) override;
 
+
+
+
 protected:
-    virtual IPState updateWeather() override;
-    virtual bool saveConfigItems(FILE *fp) override;
+    const char * getDefaultName() override;
+    virtual IPState MoveRotator(double angle) override;
+    virtual IPState HomeRotator() override;
+    virtual bool ReverseRotator(bool enabled) override;
+
+    virtual bool AbortRotator() override;
+    virtual void TimerHit() override;
+
+
+
+
 
 private:
-    INDI::PropertyNumber ControlWeatherNP {5};
+    int firmware=0;
+    double M_angleread=0;
+    double M_backlashread=0;
+    double M_reverseread=0;
+    double initangle=0;
+    bool Handshake() override;
+    INDI::PropertySwitch SetZeroSP{1};
+    bool sendCommand(std::string command);
+    bool Move(const char *cmd);
+    bool haltcommand = false;
+    bool ReverseState=false;
+    double backlash=0.5;
+    double positionhistory=0;
+    int estime=0;
+    int nowtime=0;
+
+    INDI::PropertyNumber BacklashNP{1};
     enum
     {
-        CONTROL_WEATHER,
-        CONTROL_TEMPERATURE,
-        CONTROL_WIND,
-        CONTROL_GUST,
-        CONTROL_RAIN
+        BACKLASH,
     };
+
 };
+
+
+
+
+
