@@ -1,7 +1,7 @@
 /*******************************************************************************
-  Copyright(c) 2017 Jasem Mutlaq. All rights reserved.
+  Copyright(c) 2024 Rick Bassham. All rights reserved.
 
-  INDI MBox Driver
+  Dark Dragons Astronomy DragonLIGHT
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of the GNU General Public License as published by the Free
@@ -21,55 +21,41 @@
   The full GNU General Public License is included in this distribution in the
   file called LICENSE.
 *******************************************************************************/
-
 #pragma once
 
-#include "indiweather.h"
+#include <indibase/defaultdevice.h>
+#include <indibase/indilightboxinterface.h>
 
-class MBox : public INDI::Weather
+class DragonLIGHT : public INDI::DefaultDevice, public INDI::LightBoxInterface
 {
     public:
-        MBox();
+        DragonLIGHT();
+        virtual ~DragonLIGHT() override = default;
 
-        //  Generic indi device entries
-        virtual bool Handshake() override;
-        virtual const char *getDefaultName() override;
-
+        const char *getDefaultName() override;
+        void ISGetProperties(const char *dev) override;
         virtual bool initProperties() override;
         virtual bool updateProperties() override;
-        virtual bool ISNewNumber(const char *dev, const char *name, double values[], char *names[], int n) override;
+
+        virtual bool ISNewText(const char *dev, const char *name, char *texts[], char *names[], int n) override;
         virtual bool ISNewSwitch(const char *dev, const char *name, ISState *states, char *names[], int n) override;
+        virtual bool ISNewNumber(const char *dev, const char *name, double values[], char *names[], int n) override;
+        virtual bool ISSnoopDevice(XMLEle *root) override;
+
+        virtual bool Connect() override;
+        virtual bool Disconnect() override;
+        virtual void TimerHit() override;
 
     protected:
-        virtual IPState updateWeather() override;
+        virtual bool SetLightBoxBrightness(uint16_t value) override;
+        virtual bool EnableLightBox(bool enable) override;
+        virtual bool saveConfigItems(FILE *fp) override;
 
     private:
-        typedef enum { ACK_OK_STARTUP, ACK_OK_INIT, ACK_ERROR } AckResponse;
-        typedef enum { CAL_PRESSURE, CAL_TEMPERATURE, CAL_HUMIDITY } CalibrationType;
-        enum
-        {
-            SENSOR_PRESSURE = 2,
-            SENSOR_TEMPERATURE = 6,
-            SENSOR_HUMIDITY = 10,
-            SENSOR_DEW = 14,
-            FIRMWARE = 17,
-        };
+        void updateStatus();
+        void discoverDevices();
 
-        AckResponse ack();
-
-        bool verifyCRC(const char *response);
-        bool getCalibration(bool sendCommand = true);
-        bool setCalibration(CalibrationType type);
-        bool resetCalibration();
-
-        std::vector<std::string> split(const std::string &input, const std::string &regex);
-
-        INDI::PropertyNumber CalibrationNP {3};
-
-        INDI::PropertySwitch ResetSP {1};
-
-        INDI::PropertyText FirmwareTP {1};
-
-
-
+        INDI::PropertyText FirmwareTP {2};
+        INDI::PropertyText IPAddressTP {1};
+        INDI::PropertySwitch DiscoverSwitchSP {1};
 };
