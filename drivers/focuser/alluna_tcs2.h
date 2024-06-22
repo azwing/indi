@@ -1,14 +1,8 @@
 /*
-  Skeleton Focuser Driver
+  Alluna TCS2 Focus, Dust Cover, Climate, Rotator, and Settings
+  (Dust Cover and Rotator are not implemented)
 
-  Modify this driver when developing new absolute position
-  based focusers. This driver uses serial communication by default
-  but it can be changed to use networked TCP/UDP connection as well.
-
-  Copyright(c) 2019 Jasem Mutlaq. All rights reserved.
-
-  Thanks to Rigel Systems, especially Gene Nolan and Leon Palmer,
-  for their support in writing this driver.
+  Copyright(c) 2022 Peter Englmaier. All rights reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -27,11 +21,12 @@
 
 #pragma once
 #include "indifocuser.h"
+#include "indidustcapinterface.h"
 #include <mutex>
 #include <chrono>
 #include <ctime>
 
-class AllunaTCS2 : public INDI::Focuser //, public INDI::DustCapInterface
+class AllunaTCS2 : public INDI::Focuser, public INDI::DustCapInterface
 {
     public:
         AllunaTCS2();
@@ -50,6 +45,10 @@ class AllunaTCS2 : public INDI::Focuser //, public INDI::DustCapInterface
         // From INDI::DefaultDevice
         void TimerHit() override;
         bool saveConfigItems(FILE *fp) override;
+
+        // From Dust Cap
+        virtual IPState ParkCap() override;
+        virtual IPState UnParkCap() override;
 
         // From INDI::Focuser
         IPState MoveRelFocuser(FocusDirection dir, uint32_t ticks) override;
@@ -82,11 +81,6 @@ class AllunaTCS2 : public INDI::Focuser //, public INDI::DustCapInterface
 
         typedef enum { MICRO = 1, SPEED = 0 } SteppingMode;
         SteppingMode steppingMode=MICRO;
-
-        // Dust cover
-        INDI::PropertySwitch CoverSP{2};
-        typedef enum { OPEN, CLOSED } CoverMode;
-
 
         ///////////////////////////////////////////////////////////////////////////////
         /// Read Data From Controller

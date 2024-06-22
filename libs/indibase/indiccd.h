@@ -173,7 +173,7 @@ class CCD : public DefaultDevice, GuiderInterface
         }
 
         /**
-         * @brief SetCCDCapability Set the CCD capabilities. Al fields must be initialized.
+         * @brief SetCCDCapability Set the CCD capabilities. All fields must be initialized.
          * @param cap pointer to CCDCapability struct.
          */
         void SetCCDCapability(uint32_t cap);
@@ -658,10 +658,7 @@ class CCD : public DefaultDevice, GuiderInterface
          * + **Filter Wheel**: Listens for FILTER_SLOT and FILTER_NAME properties.
          * + **SQM**: Listens for sky quality meter magnitude.
          */
-        ITextVectorProperty ActiveDeviceTP;
-
-        // JJ ed 2019-12-10
-        IText ActiveDeviceT[5] {};
+        INDI::PropertyText ActiveDeviceTP {5};
         enum
         {
             ACTIVE_TELESCOPE,
@@ -728,8 +725,8 @@ class CCD : public DefaultDevice, GuiderInterface
         INDI::PropertyNumber ScopeInfoNP {2};
         enum
         {
-            FocalLength,
-            Aperture
+            FOCAL_LENGTH,
+            APERTURE
         };
 
         // Websocket Support

@@ -25,38 +25,47 @@
 #pragma once
 
 #include "defaultdevice.h"
-#include <vector>
-#include <stdint.h>
-
+#include "indidustcapinterface.h"
+#include "indilightboxinterface.h"
 
 namespace Connection
 {
 class Serial;
 }
 
-class WandererCoverV4EC : public INDI::DefaultDevice
+class WandererCoverV4EC : public INDI::DefaultDevice, public INDI::DustCapInterface, public INDI::LightBoxInterface
 {
 public:
     WandererCoverV4EC();
     virtual ~WandererCoverV4EC() = default;
 
     virtual bool initProperties() override;
+    virtual void ISGetProperties(const char *dev) override;
     virtual bool ISNewNumber(const char *dev, const char *name, double values[], char *names[], int n) override;
     virtual bool ISNewSwitch(const char *dev, const char *name, ISState *states, char *names[], int n) override;
+    virtual bool ISNewText(const char *dev, const char *name, char *texts[], char *names[], int n) override;
     virtual bool updateProperties() override;
-
-
+    virtual bool ISSnoopDevice(XMLEle *root) override;
 
 protected:
+
+    // From Dust Cap
+    virtual IPState ParkCap() override;
+    virtual IPState UnParkCap() override;
+
+    // From Light Box
+    virtual bool SetLightBoxBrightness(uint16_t value) override;
+    virtual bool EnableLightBox(bool enable) override;
+
     const char *getDefaultName() override;
     virtual bool saveConfigItems(FILE *fp) override;
     virtual void TimerHit() override;
 
 
-
 private:
 
     int firmware=0;
+    bool toggleCover(bool open);
     bool sendCommand(std::string command);
     //Current Calibrate
     bool getData();
@@ -66,16 +75,9 @@ private:
     double voltageread=0;
     bool Ismoving=false;
     bool setDewPWM(int id, int value);
-        bool setClose(double value);
-        bool setOpen(double value);
+    bool setClose(double value);
+    bool setOpen(double value);
     void updateData(double closesetread,double opensetread,double positionread,double voltageread);
-
-        INDI::PropertySwitch OCcontrolSP{2};
-    enum
-        {
-            Open,
-            Close,
-        };
 
     INDI::PropertyNumber DataNP{4};
     enum
@@ -86,12 +88,6 @@ private:
         voltage_read,
     };
 
-    //Flat light////////////////////////////////////////////////////////////////
-    INDI::PropertyNumber SetLightNP{1};
-    enum
-    {
-        Light,
-    };
     //Dew heater///////////////////////////////////////////////////////////////
     INDI::PropertyNumber SetHeaterNP{1};
     enum
@@ -110,7 +106,6 @@ private:
     {
         OpenSet,
     };
-
 
     int PortFD{ -1 };
 

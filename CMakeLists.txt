@@ -45,7 +45,7 @@ endif()
 # ####################################  INDI version  ################################################
 set(CMAKE_INDI_VERSION_MAJOR 2)
 set(CMAKE_INDI_VERSION_MINOR 0)
-set(CMAKE_INDI_VERSION_RELEASE 6)
+set(CMAKE_INDI_VERSION_RELEASE 8)
 
 set(INDI_SOVERSION ${CMAKE_INDI_VERSION_MAJOR})
 set(CMAKE_INDI_VERSION_STRING "${CMAKE_INDI_VERSION_MAJOR}.${CMAKE_INDI_VERSION_MINOR}.${CMAKE_INDI_VERSION_RELEASE}")
@@ -298,7 +298,7 @@ if(INDI_BUILD_DRIVERS)
         find_package(GSL REQUIRED)
         find_package(JPEG REQUIRED)
         find_library(M_LIB m)
-        if(CYGWIN)
+        if(CYGWIN OR UNIX)
             find_package(Iconv REQUIRED)
         endif()
 
@@ -316,6 +316,13 @@ if(INDI_BUILD_DRIVERS)
         include_directories(${ZLIB_INCLUDE_DIR})
         include_directories(libs/indibase)
         include_directories(libs/indibase/timer)
+        include_directories(libs/indiclient)
+        include_directories(libs/indiabstractclient)
+        include_directories(libs/indicore)
+        include_directories(libs/indidevice)
+        include_directories(libs/indidevice/property)
+        include_directories(${CMAKE_CURRENT_BINARY_DIR}/libs/indicore)
+
 
         configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config-usb.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-usb.h)
 

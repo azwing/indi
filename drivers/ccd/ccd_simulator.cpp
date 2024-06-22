@@ -31,6 +31,9 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <algorithm>
+#include <chrono>
+#include <random>
+#include <thread>
 
 static pthread_cond_t cv         = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t condMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -160,7 +163,7 @@ bool CCDSim::initProperties()
                 IPS_IDLE);
 
     // FWHM
-    auto focuser = ActiveDeviceT[ACTIVE_FOCUSER].text ? ActiveDeviceT[ACTIVE_FOCUSER].text : "";
+    auto focuser = ActiveDeviceTP[ACTIVE_FOCUSER].getText() ? ActiveDeviceTP[ACTIVE_FOCUSER].getText() : "";
     IUFillNumber(&FWHMN[0], "SIM_FWHM", "FWHM (arcseconds)", "%4.2f", 0, 60, 0, 7.5);
     IUFillNumberVector(&FWHMNP, FWHMN, 1, focuser, "FWHM", "FWHM", OPTIONS_TAB, IP_RO, 60, IPS_IDLE);
 
@@ -171,7 +174,7 @@ bool CCDSim::initProperties()
                   ISR_1OFMANY, 0, IPS_IDLE);
 
     // Gain
-    GainNP[0].fill("GAIN", "value", "%.f", 0, 100, 10, 90);
+    GainNP[0].fill("GAIN", "value", "%.f", 0, 300, 10, 90);
     GainNP.fill(getDeviceName(), "CCD_GAIN", "Gain", MAIN_CONTROL_TAB, IP_RW, 60, IPS_IDLE);
 
     // Offset
@@ -198,14 +201,13 @@ bool CCDSim::initProperties()
     }
     ResolutionSP.fill(getDeviceName(), "CCD_RESOLUTION", "Resolution", SIMULATOR_TAB, IP_RW, ISR_1OFMANY, 60, IPS_IDLE);
 
-    auto mount = ActiveDeviceT[ACTIVE_TELESCOPE].text ? ActiveDeviceT[ACTIVE_TELESCOPE].text : "";
+    auto mount = ActiveDeviceTP[ACTIVE_TELESCOPE].getText() ? ActiveDeviceTP[ACTIVE_TELESCOPE].getText() : "";
 
 #ifdef USE_EQUATORIAL_PE
     IDSnoopDevice(mount, "EQUATORIAL_PE");
 #else
     IDSnoopDevice(mount, "EQUATORIAL_EOD_COORD");
 #endif
-
 
     IDSnoopDevice(focuser, "FWHM");
 
@@ -299,10 +301,10 @@ bool CCDSim::updateProperties()
     else
     {
         if (HasCooler())
-            deleteProperty(CoolerSP.getName());
+            deleteProperty(CoolerSP);
 
-        deleteProperty(GainNP.getName());
-        deleteProperty(OffsetNP.getName());
+        deleteProperty(GainNP);
+        deleteProperty(OffsetNP);
         deleteProperty(DirectoryTP);
         deleteProperty(DirectorySP);
         deleteProperty(ResolutionSP);
@@ -539,7 +541,8 @@ int CCDSim::DrawCcdFrame(INDI::CCDChip * targetChip)
 
     exposure_time *= (1 + sqrt(GainNP[0].getValue()));
 
-    auto targetFocalLength = ScopeInfoNP[FocalLength].getValue() > 0 ? ScopeInfoNP[FocalLength].getValue() : snoopedFocalLength;
+    auto targetFocalLength = ScopeInfoNP[FOCAL_LENGTH].getValue() > 0 ? ScopeInfoNP[FOCAL_LENGTH].getValue() :
+                             snoopedFocalLength;
 
     if (ShowStarField)
     {
@@ -730,8 +733,6 @@ int CCDSim::DrawCcdFrame(INDI::CCDChip * targetChip)
             if (pp != nullptr)
             {
                 char line[256];
-                int stars = 0;
-                int lines = 0;
 
                 while (fgets(line, 256, pp) != nullptr)
                 {
@@ -753,9 +754,6 @@ int CCDSim::DrawCcdFrame(INDI::CCDChip * targetChip)
                                     &band, &c, plate, ob, &dist, &dir);
                     if (rc == 12)
                     {
-                        lines++;
-                        stars++;
-
                         //  Convert the ra/dec to standard co-ordinates
                         double sx;    //  standard co-ords
                         double sy;    //
@@ -931,14 +929,13 @@ int CCDSim::DrawImageStar(INDI::CCDChip * targetChip, float mag, float x, float 
     //  scale up linearly for exposure time
     flux = flux * exposure_time;
 
-    float qx;
     //  we need a box size that gives a radius at least 3 times fwhm
-    qx       = seeing / ImageScalex;
-    qx       = qx * 3;
+    //qx       = seeing / ImageScalex;
+    //qx       = qx * 3;
     //boxsizex = (int)qx;
     //boxsizex++;
-    qx       = seeing / ImageScaley;
-    qx       = qx * 3;
+    auto qx = seeing / ImageScaley;
+    qx = qx * 3;
     boxsizey = static_cast<int>(qx);
     boxsizey++;
 
@@ -1293,11 +1290,11 @@ void CCDSim::activeDevicesUpdated()
 #ifdef USE_EQUATORIAL_PE
     IDSnoopDevice(ActiveDeviceT[0].text, "EQUATORIAL_PE");
 #else
-    IDSnoopDevice(ActiveDeviceT[ACTIVE_TELESCOPE].text, "EQUATORIAL_EOD_COORD");
+    IDSnoopDevice(ActiveDeviceTP[ACTIVE_TELESCOPE].getText(), "EQUATORIAL_EOD_COORD");
 #endif
-    IDSnoopDevice(ActiveDeviceT[ACTIVE_FOCUSER].text, "FWHM");
+    IDSnoopDevice(ActiveDeviceTP[ACTIVE_FOCUSER].getText(), "FWHM");
 
-    strncpy(FWHMNP.device, ActiveDeviceT[ACTIVE_FOCUSER].text, MAXINDIDEVICE);
+    strncpy(FWHMNP.device, ActiveDeviceTP[ACTIVE_FOCUSER].getText(), MAXINDIDEVICE);
 }
 
 bool CCDSim::ISSnoopDevice(XMLEle * root)
@@ -1410,6 +1407,12 @@ bool CCDSim::saveConfigItems(FILE * fp)
 
 bool CCDSim::SelectFilter(int f)
 {
+    // Sleep randomly between 1500 and 2000ms to simulate filter selection
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dist(1500, 2000);
+    std::this_thread::sleep_for(std::chrono::milliseconds(dist(gen)));
+
     CurrentFilter = f;
     SelectFilterDone(f);
     return true;
