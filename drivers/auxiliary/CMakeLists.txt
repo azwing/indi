@@ -157,6 +157,16 @@ add_executable(indi_astromech_lpm ${lpm_SRC})
 target_link_libraries(indi_astromech_lpm indidriver)
 install(TARGETS indi_astromech_lpm RUNTIME DESTINATION bin)
 
+
+# ########## Astrolink Mini v2 #############
+SET(astrolinkminiv2_SRC
+    indi_astrolink4mini2.cpp)
+
+add_executable(indi_astrolink4mini2 ${astrolinkminiv2_SRC})
+target_link_libraries(indi_astrolink4mini2 indidriver)
+install(TARGETS indi_astrolink4mini2 RUNTIME DESTINATION bin)
+
+
 # ########## Sky Quality Meter ###############
 SET(sqm_SRC
     sqm.cpp)
@@ -264,6 +274,14 @@ add_executable(indi_myDewControllerPro ${myDewControllerPro_SRC})
 target_link_libraries(indi_myDewControllerPro indidriver)
 install(TARGETS indi_myDewControllerPro RUNTIME DESTINATION bin)
 
+# ########## CheapoDC Driver ###############
+SET(cheapodc_SRC
+    cheapodc.cpp)
+
+add_executable(indi_cheapodc ${cheapodc_SRC})
+target_link_libraries(indi_cheapodc indidriver)
+install(TARGETS indi_cheapodc RUNTIME DESTINATION bin)
+
 # ########## MYDCP4ESP32 Driver ###############
 SET(mydcp4esp32_SRC
     mydcp4esp32.cpp)
@@ -305,5 +323,5 @@ SET(dragonlight_SRC
     dragonlight.cpp)
 
 add_executable(indi_dragon_light ${dragonlight_SRC})
-target_link_libraries(indi_dragon_light indidriver)
+target_link_libraries(indi_dragon_light indidriver ${HTTPLIB_LIBRARY})
 install(TARGETS indi_dragon_light RUNTIME DESTINATION bin)

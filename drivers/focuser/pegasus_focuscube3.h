@@ -1,7 +1,7 @@
 /*******************************************************************************
-  Copyright(c) 2021 Chrysikos Efstathios. All rights reserved.
+  Copyright(c) 2023 Chrysikos Efstathios. All rights reserved.
 
-  Pegasus ProdigyMF
+  Pegasus FocusCube
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of the GNU General Public License as published by the Free
@@ -25,11 +25,11 @@
 
 #include "indifocuser.h"
 
-class PegasusProdigyMF : public INDI::Focuser
+class PegasusFocusCube3 : public INDI::Focuser
 {
     public:
-        PegasusProdigyMF();
-        virtual ~PegasusProdigyMF() override = default;
+        PegasusFocusCube3();
+        virtual ~PegasusFocusCube3() override = default;
 
         virtual bool Handshake() override;
         const char *getDefaultName() override;
@@ -45,29 +45,31 @@ class PegasusProdigyMF : public INDI::Focuser
 
         virtual bool SyncFocuser(uint32_t ticks) override;
         virtual bool ReverseFocuser(bool enabled) override;
-        virtual bool saveConfigItems(FILE *fp) override;
+        virtual bool SetFocuserBacklash(int32_t steps) override;
+
+
+        char stopChar { 0xD };
+        static constexpr const uint8_t PEGASUS_TIMEOUT {3};
+        static constexpr const uint8_t PEGASUS_LEN {128};
+        int PortFD { -1 };
+        bool setupComplete { false };
+        bool sendCommand(const char *cmd, char *res);
+        std::vector<std::string> split(const std::string &input, const std::string &regex);
 
     private:
         bool updateFocusParams();
+        bool setSpeed(uint16_t speed);
         bool move(uint32_t newPosition);
-        bool setMaxSpeed(uint16_t speed);
-        bool ack();
-        void ignoreResponse();
+        std::string  getFirmwareVersion();
 
         uint32_t currentPosition { 0 };
         uint32_t targetPosition { 0 };
         bool isMoving = false;
 
-        // Temperature probe
-        INumber TemperatureN[1];
-        INumberVectorProperty TemperatureNP;
+
+        INDI::PropertyNumber TemperatureNP {1};
+        INDI::PropertyText FirmwareVersionTP {1};
+        INDI::PropertyNumber SpeedNP {1};
 
 
-        // Maximum Speed
-        INumber MaxSpeedN[1];
-        INumberVectorProperty MaxSpeedNP;
-
-        // Firmware Version
-        IText FirmwareVersionT[1] {};
-        ITextVectorProperty FirmwareVersionTP;
 };
