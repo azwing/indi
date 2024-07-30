@@ -46,8 +46,11 @@ LX200AM5::LX200AM5()
                            TELESCOPE_CAN_CONTROL_TRACK |
                            TELESCOPE_HAS_TIME |
                            TELESCOPE_HAS_LOCATION |
-                           TELESCOPE_HAS_TRACK_MODE,
-                           SLEW_MODES);
+                           TELESCOPE_HAS_TRACK_MODE |
+                           TELESCOPE_CAN_HOME_SET |
+                           TELESCOPE_CAN_HOME_GO,
+                           SLEW_MODES
+                          );
 }
 
 bool LX200AM5::initProperties()
@@ -94,8 +97,8 @@ bool LX200AM5::initProperties()
     SlewRateS[9].s = ISS_ON;
 
     // Home/Zero position
-    HomeSP[0].fill("GO", "Go", ISS_OFF);
-    HomeSP.fill(getDeviceName(), "TELESCOPE_HOME", "Home", MAIN_CONTROL_TAB, IP_RW, ISR_ATMOST1, 60, IPS_IDLE);
+    // HomeSP[0].fill("GO", "Go", ISS_OFF);
+    // HomeSP.fill(getDeviceName(), "TELESCOPE_HOME", "Home", MAIN_CONTROL_TAB, IP_RW, ISR_ATMOST1, 60, IPS_IDLE);
 
     // Guide Rate
     GuideRateNP[0].fill("RATE", "Rate", "%.2f", 0.1, 0.9, 0.1, 0.5);
@@ -132,14 +135,14 @@ bool LX200AM5::updateProperties()
     {
         setup();
 
-        defineProperty(HomeSP);
+        //defineProperty(HomeSP);
         defineProperty(GuideRateNP);
         defineProperty(BuzzerSP);
 
     }
     else
     {
-        deleteProperty(HomeSP);
+        //deleteProperty(HomeSP);
         deleteProperty(GuideRateNP);
         deleteProperty(BuzzerSP);
     }
@@ -216,19 +219,6 @@ bool LX200AM5::ISNewSwitch(const char *dev, const char *name, ISState *states, c
             }
             MountTypeSP.setState(state);
             MountTypeSP.apply();
-            return true;
-        }
-
-        // Home
-        if (HomeSP.isNameMatch(name))
-        {
-            if (HomeSP.getState() != IPS_BUSY)
-            {
-                HomeSP[0].setState(ISS_ON);
-                HomeSP.setState(goHome() ? IPS_BUSY : IPS_ALERT);
-                LOG_INFO("Homing in progress...");
-            }
-            HomeSP.apply();
             return true;
         }
     }
@@ -430,6 +420,16 @@ bool LX200AM5::goHome()
 /////////////////////////////////////////////////////////////////////////////
 ///
 /////////////////////////////////////////////////////////////////////////////
+bool LX200AM5::setHome()
+{
+    const char cmd[] = ":SOa#";
+    char status ='0';
+    return sendCommand(cmd, &status, strlen(cmd), sizeof(status)) && status == '1';
+}
+
+/////////////////////////////////////////////////////////////////////////////
+///
+/////////////////////////////////////////////////////////////////////////////
 bool LX200AM5::updateLocation(double latitude, double longitude, double elevation)
 {
     INDI_UNUSED(elevation);
@@ -501,7 +501,7 @@ bool LX200AM5::ReadScopeStatus()
 
     if (HomeSP.getState() == IPS_BUSY && isHome)
     {
-        HomeSP[0].setState(ISS_OFF);
+        HomeSP.reset();
         HomeSP.setState(IPS_OK);
         LOG_INFO("Arrived at home.");
         HomeSP.apply();
@@ -646,4 +646,29 @@ std::vector<std::string> LX200AM5::split(const std::string &input, const std::st
     first{input.begin(), input.end(), re, -1},
           last;
     return {first, last};
+}
+
+/////////////////////////////////////////////////////////////////////////////
+///
+/////////////////////////////////////////////////////////////////////////////
+IPState LX200AM5::ExecuteHomeAction(TelescopeHomeAction action)
+{
+    switch (action)
+    {
+        case HOME_GO:
+            if (goHome())
+                return IPS_BUSY;
+            else
+                return IPS_ALERT;
+
+        case HOME_SET:
+            if (setHome())
+                return IPS_OK;
+            else
+                return IPS_ALERT;
+
+        default:
+            return IPS_ALERT;
+
+    }
 }
