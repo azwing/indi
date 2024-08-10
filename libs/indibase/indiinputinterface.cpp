@@ -47,7 +47,7 @@ void InputInterface::initProperties(const char *groupName, uint8_t digital, uint
 {
     m_DigitalLabelConfig = false;
     m_AnalogLabelConfig = false;
-    DigitalInputLabelsTP.reserve(digital);
+    DigitalInputLabelsTP.resize(0);
     // Digital labels
     for (size_t i = 0; i < digital; i++)
     {
@@ -68,7 +68,7 @@ void InputInterface::initProperties(const char *groupName, uint8_t digital, uint
     }
 
     // Analog labels
-    AnalogInputLabelsTP.reserve(analog);
+    AnalogInputLabelsTP.resize(0);
     for (size_t i = 0; i < analog; i++)
     {
         auto name = "ANALOG_INPUT_" + std::to_string(i + 1);
