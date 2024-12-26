@@ -25,6 +25,14 @@ add_executable(indi_wanderercover_v4_ec ${indi_wanderercover_v4_ec_SRC})
 target_link_libraries(indi_wanderercover_v4_ec indidriver)
 install(TARGETS indi_wanderercover_v4_ec RUNTIME DESTINATION bin)
 
+# ########## Astrolink-4###############
+SET(indi_astrolink4_SRC
+    indi_astrolink4.cpp)
+
+add_executable(indi_astrolink4 ${indi_wanderercover_v4_ec_SRC})
+target_link_libraries(indi_astrolink4 indidriver)
+install(TARGETS indi_astrolink4 RUNTIME DESTINATION bin)
+
 # ########## Wanderer Box Plus V3 ###############
 SET(indi_wandererbox_plus_v3_SRC
     wandererbox_plus_v3.cpp)
@@ -306,13 +314,13 @@ add_executable(indi_mydcp4esp32 ${mydcp4esp32_SRC})
 target_link_libraries(indi_mydcp4esp32 indidriver)
 install(TARGETS indi_mydcp4esp32 RUNTIME DESTINATION bin)
 
-# ########## Deep Sky Dad FP1 ###############
-SET(deepskydad_fp1_SRC
-    deepskydad_fp1.cpp)
+# ########## Deep Sky Dad FP ###############
+SET(deepskydad_fp_SRC
+    deepskydad_fp.cpp)
 
-add_executable(indi_deepskydad_fp1 ${deepskydad_fp1_SRC})
-target_link_libraries(indi_deepskydad_fp1 indidriver)
-install(TARGETS indi_deepskydad_fp1 RUNTIME DESTINATION bin)
+add_executable(indi_deepskydad_fp ${deepskydad_fp_SRC})
+target_link_libraries(indi_deepskydad_fp indidriver)
+install(TARGETS indi_deepskydad_fp RUNTIME DESTINATION bin)
 
 # ########## GIOTTO ###############
 SET(giotto_SRC

@@ -39,6 +39,10 @@
             <driver name="LX200 OnStep">indi_lx200_OnStep</driver>
             <version>1.23</version>
         </device>
+        <device label="UMi" manufacturer="ProxiSky">
+            <driver name="LX200 OnStep">indi_lx200_OnStep</driver>
+            <version>1.23</version>
+        </device>
         <device label="LX200 OpenAstroTech" manufacturer="OpenAstroTech">
             <driver name="LX200 OpenAstroTech">indi_lx200_OpenAstroTech</driver>
             <version>0.9</version>
@@ -121,7 +125,7 @@
         </device>
         <device label="AstroTrac" manufacturer="AstroTrac">
             <driver name="AstroTrac">indi_astrotrac_telescope</driver>
-            <version>1.0</version>
+            <version>1.1</version>
         </device>
         <device label="Rainbow RST-135" manufacturer="Rainbow Astro">
             <driver name="Rainbow">indi_rainbow_telescope</driver>
@@ -188,6 +192,42 @@
             <version>1.7</version>
         </device>
         <device label="iOptron GEM28" manufacturer="iOptron">
+            <driver name="iOptronV3">indi_ioptronv3_telescope</driver>
+            <version>1.7</version>
+        </device>
+        <device label="iOptron HEM15" manufacturer="iOptron">
+            <driver name="iOptronV3">indi_ioptronv3_telescope</driver>
+            <version>1.7</version>
+        </device>
+        <device label="iOptron HEM44" manufacturer="iOptron">
+            <driver name="iOptronV3">indi_ioptronv3_telescope</driver>
+            <version>1.7</version>
+        </device>
+        <device label="iOptron HAE43" manufacturer="iOptron">
+            <driver name="iOptronV3">indi_ioptronv3_telescope</driver>
+            <version>1.7</version>
+        </device>
+        <device label="iOptron HAE69" manufacturer="iOptron">
+            <driver name="iOptronV3">indi_ioptronv3_telescope</driver>
+            <version>1.7</version>
+        </device>
+        <device label="iOptron HAZ31" manufacturer="iOptron">
+            <driver name="iOptronV3">indi_ioptronv3_telescope</driver>
+            <version>1.7</version>
+        </device>
+        <device label="iOptron HAZ46" manufacturer="iOptron">
+            <driver name="iOptronV3">indi_ioptronv3_telescope</driver>
+            <version>1.7</version>
+        </device>
+        <device label="iOptron HAZ71" manufacturer="iOptron">
+            <driver name="iOptronV3">indi_ioptronv3_telescope</driver>
+            <version>1.7</version>
+        </device>
+        <device label="iOptron HAE16" manufacturer="iOptron">
+            <driver name="iOptronV3">indi_ioptronv3_telescope</driver>
+            <version>1.7</version>
+        </device>
+        <device label="iOptron HAE18" manufacturer="iOptron">
             <driver name="iOptronV3">indi_ioptronv3_telescope</driver>
             <version>1.7</version>
         </device>
@@ -431,7 +471,7 @@
         </device>
         <device label="Pyxis" manufacturer="Optec">
             <driver name="Pyxis">indi_pyxis_rotator</driver>
-            <version>1.0</version>
+            <version>1.1</version>
         </device>
         <device label="Pegasus Falcon" manufacturer="Pegasus Astro">
             <driver name="Pegasus Falcon">indi_falcon_rotator</driver>
@@ -643,6 +683,10 @@
             <driver name="Pegasus INDIGO">indi_pegasusindigo_wheel</driver>
             <version>1.0</version>
         </device>
+       <device label="iOptron Wheel" manufacturer="iOptron">
+            <driver name="ioptron Wheel">indi_ioptron_wheel</driver>
+            <version>1.0</version>
+        </device>        
     </devGroup>
     <devGroup group="Auxiliary">
         <device label="Astrometry" manufacturer="Others">
@@ -761,8 +805,8 @@
             <driver name="MyDCP4ESP32">indi_mydcp4esp32</driver>
             <version>1.0</version>
         </device>
-        <device label="DeepSkyDad FP1" manufacturer="DeepSkyDad">
-            <driver name="DeepSkyDad FP1">indi_deepskydad_fp1</driver>
+        <device label="DeepSkyDad FP" manufacturer="DeepSkyDad">
+            <driver name="DeepSkyDad FP">indi_deepskydad_fp</driver>
             <version>1.0</version>
         </device>
         <device label="DeepSkyDad FR1" manufacturer="DeepSkyDad">
